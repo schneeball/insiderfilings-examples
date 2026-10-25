@@ -64,6 +64,16 @@ At the time of writing, trial keys allow:
 
 Check the playground for current access conditions and limits.
 
+## Download an API response
+
+On macOS, Linux or in Git Bash:
+
+```bash
+bash examples/download_transactions.sh
+```
+
+This saves one response page to `transactions.json`.
+
 ## Disclaimer
 
 For information and research only. Not investment advice.
