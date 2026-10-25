@@ -24,7 +24,13 @@ Set your API key as an environment variable:
 export INSIDERFILINGS_API_KEY="YOUR_API_KEY"
 ```
 
-Fetch 25 transaction line items:
+In Windows PowerShell:
+
+```powershell
+$env:INSIDERFILINGS_API_KEY = "YOUR_API_KEY"
+```
+
+Fetch 25 transaction line items with Bash/cURL:
 
 ```bash
 curl --fail-with-body --silent --show-error \
@@ -68,7 +74,18 @@ At the time of writing, trial keys allow:
 See the [API documentation](https://insiderfilings.info/api/v1/docs/)
 for current access conditions, limits and available filters.
 
-## Download an API response
+## Runnable examples
+
+Run these examples from the repository root, with `INSIDERFILINGS_API_KEY` set.
+
+| Language | File | What it downloads |
+| --- | --- | --- |
+| Bash/cURL | [download_transactions.sh](examples/download_transactions.sh) | One response page |
+| Python | [download_transactions.py](examples/download_transactions.py) | Multiple pages with cursor pagination |
+| PHP | [download_transactions.php](examples/download_transactions.php) | Multiple pages with cursor pagination |
+| JavaScript/Node.js | [download_transactions.mjs](examples/download_transactions.mjs) | Multiple pages with cursor pagination |
+
+### Download one page with cURL
 
 On macOS, Linux or in Git Bash:
 
@@ -78,7 +95,7 @@ bash examples/download_transactions.sh
 
 This saves one response page to `transactions.json`.
 
-## Download multiple pages with Python
+### Download multiple pages with Python
 
 Requires Python 3.10 or later. The example uses only the Python standard
 library; no packages need to be installed. Set `INSIDERFILINGS_API_KEY`
@@ -88,34 +105,77 @@ as shown above, then run this command from the repository root:
 python3 examples/download_transactions.py
 ```
 
-On Windows, use `py -3` in place of `python3`. In PowerShell, set the key
-with `$env:INSIDERFILINGS_API_KEY = "YOUR_API_KEY"`.
+On Windows, use `py -3` in place of `python3`.
 
-By default, this fetches up to three pages of 100 transaction line items
-each and saves the combined results to `transactions_paginated.json`.
-The output contains a `data` array and `download` metadata with
-`pages_fetched` and `has_more`. A true `download.has_more` means the page
-cap was reached and more results are available.
-
-For example, fetch up to five pages of reported purchases for two tickers:
+For reported purchases from two tickers:
 
 ```bash
 python3 examples/download_transactions.py --ticker AAPL,MSFT --transaction-code P --max-pages 5
 ```
 
-The script reads `pagination.next_cursor` from each response. Filters and
+### Download multiple pages with PHP
+
+Requires PHP 8.3 or later with the cURL extension enabled for the CLI.
+No Composer packages need to be installed. Run it from the command line
+or a cron job:
+
+```bash
+php examples/download_transactions.php
+```
+
+For reported purchases from two tickers:
+
+```bash
+php examples/download_transactions.php --ticker AAPL,MSFT --transaction-code P --max-pages 5
+```
+
+### Download multiple pages with JavaScript (Node.js)
+
+Requires Node.js 22 or later. The example uses built-in `fetch` and runs
+in Node.js; no npm packages need to be installed.
+
+```bash
+node examples/download_transactions.mjs
+```
+
+For reported purchases from two tickers:
+
+```bash
+node examples/download_transactions.mjs --ticker AAPL,MSFT --transaction-code P --max-pages 5
+```
+
+### Pagination options and output
+
+The Python, PHP and Node.js examples use the same options and export format:
+
+| Option | Meaning | Default |
+| --- | --- | --- |
+| `--limit` | Transaction line items per page, 1-100 | `100` |
+| `--max-pages` | Maximum number of pages to fetch | `3` |
+| `--ticker` | Comma-separated issuer tickers | No ticker filter |
+| `--transaction-code` | Comma-separated SEC transaction codes, such as `P` or `P,S` | No code filter |
+| `--output` | Export path | `transactions_paginated.json` |
+| `--help` | Show usage and options | |
+
+By default, each example fetches up to three pages of 100 transaction line
+items each and saves the combined results to `transactions_paginated.json`.
+The output contains a `data` array and `download` metadata with
+`pages_fetched` and `has_more`. A true `download.has_more` means the page
+cap was reached and more results are available.
+
+Each script reads `pagination.next_cursor` from each response. Filters and
 `limit` are sent on the first request only; subsequent requests send only
 `cursor`, which already carries the original filters, page size and snapshot.
 It stops when `pagination.has_more` is false or `--max-pages` is reached.
 Decimal strings and `null` values are preserved.
 
-Every page consumes one API request. The script pauses 6.1 seconds between
+Every page consumes one API request. Each script pauses 6.1 seconds between
 pages to pace requests for trial access. If the API returns HTTP 429, it stops
 and reports `Retry-After` when available. Other HTTP or network errors also
 stop the download. The output file is written only after all requested pages
 have been fetched successfully; an existing file is overwritten on success.
 
-Run `python3 examples/download_transactions.py --help` for all options.
+Use `--help` with any of the three paginated examples to see its options.
 
 ## Disclaimer
 
