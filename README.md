@@ -27,7 +27,7 @@ Fetch 25 transaction line items:
 ```bash
 curl --fail-with-body --silent --show-error \
   -H "X-API-Key: $INSIDERFILINGS_API_KEY" \
-  "[https://insiderfilings.info/api/v1/transactions?limit=25](https://insiderfilings.info/api/v1/transactions?limit=25)"
+  "https://insiderfilings.info/api/v1/transactions?limit=25"
 ```
 
 Never commit your API key to this repository.
